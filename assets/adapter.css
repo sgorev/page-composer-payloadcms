@@ -1,0 +1,20 @@
+.page-composer-surface{min-width:0; padding:12px; box-sizing:border-box; font:14px/1.5 system-ui,sans-serif; color:#172032; background:white; border:1px solid #ddd; border-radius:6px; color-scheme:light; overflow:visible}
+.page-composer-surface.pc-readonly{opacity:.75}
+/* The Payload field wrapper already supplies the outer border. */
+.page-composer-surface .pce-editor-cont{border:0}
+.page-composer-surface *, .page-composer-surface *::before, .page-composer-surface *::after{box-sizing:border-box}
+.page-composer-surface :is(button,input,select,textarea){font-family:inherit;letter-spacing:normal}
+.page-composer-surface .pce-modal{z-index:100020;max-width:calc(100vw - 32px);min-width:0}
+.page-composer-surface .pce-modal-settings,.page-composer-surface .modal-modules{width:min(1200px,calc(100vw - 32px))}
+.page-composer-surface .pce-editor-cont--fullwindow{z-index:100010}
+.page-composer-surface .pce-modal-elements__categories{max-width:25vw}
+.page-composer-surface .pc-media-field button{cursor:pointer;padding:8px 12px;margin:5px;border:1px solid #ccc;border-radius:5px;background:#f7f8fa;color:#172032}.page-composer-surface .pc-media-field input{max-width:100%;padding:8px;margin:5px 0}.page-composer-surface .pc-media-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.page-composer-surface .pc-media-grid button{min-width:0;overflow-wrap:anywhere;font-size:12px}.page-composer-surface .pc-media-grid img{width:100%;height:85px;object-fit:contain}.page-composer-surface .pc-content{padding:4px}.page-composer-surface .pc-media-browser{padding:10px;border:1px solid #ddd;margin-top:10px;border-radius:8px}
+/* The host owns its navigation/save bar. Keep the editor's toolbar in this
+   canvas, stacked below the host bar while scrolling instead of covering it. */
+.page-composer-surface .pce-mode-live .pce-editor-toolbar{position:sticky;top:var(--payload-composer-toolbar-offset,0px);left:auto;right:auto}
+.page-composer-surface .pce-editor-gearbar{position:sticky;top:var(--payload-composer-toolbar-offset,0px);left:auto;right:auto}
+.page-composer-surface .pce-mode-live .pce-editor-content{padding-top:12px}
+
+/* Inline component settings must fit the Payload field, not the modal width. */
+.page-composer-surface .pce-settings-fields--static{width:100%;max-width:100%;min-width:0}
+.page-composer-preset-tag select{width:100%;padding:12px;background:var(--theme-input-bg);color:var(--theme-text);border:1px solid var(--theme-elevation-150);border-radius:4px}

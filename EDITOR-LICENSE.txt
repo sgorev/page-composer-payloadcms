@@ -1,0 +1,5 @@
+Page Composer editor — commercial distribution
+
+Copyright Page Composer. All rights reserved.
+
+The compiled Page Composer editor is provided for use under a purchased Page Composer Payload CMS plugin license. Its proprietary source is not included in this package and is not licensed under the integration code's GPL notice. Third-party components retain their respective license terms and notices.

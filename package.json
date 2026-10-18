@@ -1,0 +1,80 @@
+{
+  "name": "@page-composer/payload",
+  "version": "0.2.0",
+  "description": "Page Composer visual content fields and authenticated frontend editing for Payload CMS 3",
+  "type": "module",
+  "license": "SEE LICENSE IN LICENSE",
+  "keywords": [
+    "payload",
+    "payload-plugin",
+    "page-composer",
+    "visual-editor",
+    "page-builder"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "files": [
+    "dist",
+    "assets",
+    "src",
+    "scripts",
+    "README.md",
+    "LICENSE",
+    "THIRD-PARTY-NOTICES.md",
+    "tsconfig.json",
+    "tests",
+    "EDITOR-LICENSE.txt"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "import": "./dist/client.js",
+      "default": "./dist/client.js"
+    },
+    "./render": {
+      "types": "./dist/render.d.ts",
+      "import": "./dist/render.js",
+      "default": "./dist/render.js"
+    }
+  },
+  "sideEffects": [
+    "./dist/client.js"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "sync:editor": "node scripts/sync-editor.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "prepack": "npm run build && npm test && node scripts/check-package.mjs",
+    "prepare": "npm run build"
+  },
+  "peerDependencies": {
+    "@payloadcms/ui": ">=3.91.0 <4",
+    "payload": ">=3.91.0 <4",
+    "react": ">=19.2.0 <20",
+    "react-dom": ">=19.2.0 <20"
+  },
+  "dependencies": {
+    "flatted": "^3.3.3",
+    "sanitize-html": "^2.17.0"
+  },
+  "devDependencies": {
+    "@payloadcms/ui": "^3.91.0",
+    "@types/node": "^22.19.9",
+    "@types/react": "^19.2.14",
+    "@types/sanitize-html": "^2.16.0",
+    "payload": "^3.91.0",
+    "postcss": "^8.5.30",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "typescript": "^5.7.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

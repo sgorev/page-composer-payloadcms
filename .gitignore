@@ -1,0 +1,7 @@
+node_modules/
+*.tgz
+editor-source/
+*.map
+.env*
+!.env.example
+.DS_Store
