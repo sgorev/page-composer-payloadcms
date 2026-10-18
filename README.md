@@ -2,7 +2,7 @@
 
 An installable Payload 3 plugin with a reusable visual content field, Widget editing in the admin, an authenticated Live editor for application frontends, a shared HTML renderer, media uploads/library selection, reusable templates and component presets.
 
-Version 0.2.0. Tested with Payload 3.91.0, Next 16.3.3, MongoDB and React 19.2.6 in Payload; the embedded editor uses its own React 19.3.1 bundle. Requires Node 22.12 or later. The editor mounts directly into the host page using an independent React root, with scoped styles and per-field state. There is no editor iframe or nested canvas scrollbar; the canvas grows with its content. The core's full-window control remains available in Widget mode. The editor assets are self-hosted. A purchased Payload CMS license is verified against the Page Composer licensing service.
+Version 0.2.0. Tested with Payload 3.91.0, Next 16.3.3, MongoDB and React 19.2.6 in Payload; the embedded editor uses its own React 19.3.1 bundle. Requires Node 22.12 or later. The editor mounts directly into the host page using an independent React root, with scoped styles and per-field state. There is no editor iframe or nested canvas scrollbar; the canvas grows with its content. The core's full-window control remains available in Widget mode. The editor assets are self-hosted. The Page Composer plugin API key is verified against the Page Composer licensing service. Payload CMS itself is free to use.
 
 ## Install
 
@@ -26,7 +26,7 @@ cd page-composer-payloadcms
 npm ci
 ```
 
-The repository includes the compiled editor bundle and integration code. The package's `prepare` script builds the TypeScript entry points. Both download options require a purchased Payload CMS license and API key to run the editor.
+The repository includes the compiled editor bundle and integration code. The package's `prepare` script builds the TypeScript entry points. Both download options require a purchase of the Page Composer plugin for Payload CMS and a Page Composer plugin API key to run the editor.
 
 ## License
 
