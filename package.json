@@ -76,5 +76,13 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sgorev/page-composer-payloadcms.git"
+  },
+  "homepage": "https://github.com/sgorev/page-composer-payloadcms#readme",
+  "bugs": {
+    "url": "https://github.com/sgorev/page-composer-payloadcms/issues"
   }
 }

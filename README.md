@@ -12,7 +12,25 @@ Install the release tarball in a Payload application:
 npm install ./page-composer-payload-0.2.0.tgz
 ```
 
-Once this directory has been published as the root of a GitHub repository, it can also be installed with `npm install github:<owner>/<repository>#<release-tag>`. Those are placeholders; this local project has not been published. Commit `dist/`, `assets/`, integration sources and the lockfile so GitHub installs contain the complete release. The package's `prepare` script builds the TypeScript entry points.
+You can also install from [GitHub](https://github.com/sgorev/page-composer-payloadcms):
+
+```sh
+npm install github:sgorev/page-composer-payloadcms#main
+```
+
+Or clone the repository to work on the integration:
+
+```sh
+git clone https://github.com/sgorev/page-composer-payloadcms.git
+cd page-composer-payloadcms
+npm ci
+```
+
+The repository includes the compiled editor bundle and integration code. The package's `prepare` script builds the TypeScript entry points. Both download options require a purchased Payload CMS license and API key to run the editor.
+
+## License
+
+The Payload integration is licensed under the [MIT License](LICENSE). The bundled Page Composer editor remains commercial software under [EDITOR-LICENSE.txt](EDITOR-LICENSE.txt); its proprietary source is not included. Third-party components retain their own licenses, listed in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
 
 After publishing to npm, the registry install command will be `npm install @page-composer/payload`. Marketplace submission is a separate listing/review step; no marketplace listing is created by installing the package.
 
@@ -146,7 +164,7 @@ npm pack
 
 `npm pack` builds and tests before packaging. It includes runtime assets and declarations, not credentials or application data. To refresh the vendored editor from the sibling editor project, build that project first, then run `npm run sync:editor -- /absolute/path/to/editor`. Build the dedicated entry with `npm run build:payloadcms` in the private editor project. The sync script copies only `pceditor_payloadcms.js`, compiled CSS, notices and TinyMCE. Editor source and source maps are never included. `npm pack` audits this boundary before creating a release. WordPress bundles are separate.
 
-Before public release, choose the actual repository/registry owner, set `repository`, `homepage`, and `bugs` in package.json, publish a tagged GitHub release, and submit that real release to the desired marketplace. These require the owner's account and publishing authorization. The local implementation supplies the distributable package; it does not claim marketplace approval.
+Source and issue tracking are hosted at [sgorev/page-composer-payloadcms](https://github.com/sgorev/page-composer-payloadcms). Marketplace publication is separate from this GitHub repository.
 
 ### Settings value preservation (0.1.5)
 
