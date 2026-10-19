@@ -11,11 +11,17 @@ export { validateContent } from './content.js'
 export type { ComposerContent, ComposerNode } from './content.js'
 export type { Renderers, ComponentRenderer } from './render.js'
 
-export type PageComposerFieldOptions = Omit<JSONField, 'type'> & { mode?: 'widget' | 'live'; height?: number }
+export type PageComposerFieldOptions = Omit<JSONField, 'type'> & {
+  /** @deprecated Admin fields always use Widget mode. Use PageComposerLiveEditor on the frontend. */
+  mode?: 'widget' | 'live'
+  height?: number
+  /** Frontend editing URL, e.g. /pages/{slug}?edit=1. Placeholders read saved document fields. */
+  liveEditURL?: string
+}
 
 /** Add to any collection, global, group, tab, array or block's fields. */
 export function pageComposerField(options: PageComposerFieldOptions): JSONField {
-  const { mode = 'widget', height = 640, ...field } = options
+  const { mode: _mode, height = 640, liveEditURL, ...field } = options
   return {
     ...field,
     type: 'json',
@@ -28,7 +34,7 @@ export function pageComposerField(options: PageComposerFieldOptions): JSONField 
       ...field.admin,
       components: {
         ...field.admin?.components,
-        Field: { path: '@page-composer/payload/client#PageComposerField', clientProps: { mode, height } },
+        Field: { path: '@page-composer/payload/client#PageComposerField', clientProps: { height, ...(liveEditURL ? { liveEditURL } : {}) } },
       },
     },
   }

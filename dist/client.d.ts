@@ -19,8 +19,8 @@ export declare const PageComposerField: React.FC<{
     readonly path: string;
     readonly validate?: import("payload").JSONFieldValidation;
 } & {
-    mode?: "widget" | "live";
     height?: number;
+    liveEditURL?: string;
 }>;
 type TagOption = {
     value: string;

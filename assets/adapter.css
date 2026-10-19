@@ -19,3 +19,8 @@
 /* Inline component settings must fit the Payload field, not the modal width. */
 .page-composer-surface .pce-settings-fields--static{width:100%;max-width:100%;min-width:0}
 .page-composer-preset-tag select{width:100%;padding:12px;background:var(--theme-input-bg);color:var(--theme-text);border:1px solid var(--theme-elevation-150);border-radius:4px}
+
+/* Payload's edit pane is its own stacking context (isolation + container-type), so the editor's fixed modals
+   would otherwise paint under the Live Preview pane. Lift the pane while a Page Composer modal is open. */
+.collection-edit__main:has(.page-composer-surface .pce-modal.pce-show),
+.global-edit__main:has(.page-composer-surface .pce-modal.pce-show){position:relative;z-index:10}

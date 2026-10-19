@@ -1,4 +1,5 @@
 import { jsx as _jsx } from "react/jsx-runtime";
+import { randomUUID } from 'node:crypto';
 import sanitizeHtml from 'sanitize-html';
 import { parse as parseFlatted } from 'flatted';
 import { validateContent } from './content.js';
@@ -109,9 +110,10 @@ export function renderContent(value, options = {}) {
     return `<style>${contentCSS}${styles}</style><div class="pc-content">${html}</div>`;
 }
 export function renderLiveComponent(args, renderers = {}) {
-    const id = `pc-live-${String(args.index || '0').replace(/[^a-z0-9_-]/gi, '-')}`;
+    // The editor supplies a sibling index, which repeats across nested containers.
+    const id = `pc-live-${randomUUID()}`;
     const html = componentHTML(args, [], { id, live: true, children: args.children || [] }, renderers);
-    return { html: `<style>${componentStyle(args, id)}</style><div class="pc-content" id="${id}">${html}</div>`, class: '' };
+    return { html: `<div class="pc-content" data-pc-live="${id}" id="${id}"><style>${componentStyle(args, id)}</style>${html}</div>`, class: '' };
 }
 /** Server component: does not ship the editor to public visitors. */
 export function PageComposerContent({ value, id, renderers }) {

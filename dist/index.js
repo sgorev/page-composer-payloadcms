@@ -8,7 +8,7 @@ import { contentCSS, renderLiveComponent } from './render.js';
 export { validateContent } from './content.js';
 /** Add to any collection, global, group, tab, array or block's fields. */
 export function pageComposerField(options) {
-    const { mode = 'widget', height = 640, ...field } = options;
+    const { mode: _mode, height = 640, liveEditURL, ...field } = options;
     return {
         ...field,
         type: 'json',
@@ -21,7 +21,7 @@ export function pageComposerField(options) {
             ...field.admin,
             components: {
                 ...field.admin?.components,
-                Field: { path: '@page-composer/payload/client#PageComposerField', clientProps: { mode, height } },
+                Field: { path: '@page-composer/payload/client#PageComposerField', clientProps: { height, ...(liveEditURL ? { liveEditURL } : {}) } },
             },
         },
     };

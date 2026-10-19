@@ -2,14 +2,14 @@
 
 An installable Payload 3 plugin with a reusable visual content field, Widget editing in the admin, an authenticated Live editor for application frontends, a shared HTML renderer, media uploads/library selection, reusable templates and component presets.
 
-Version 0.2.1. Tested with Payload 3.91.0, Next 16.3.3, MongoDB and React 19.2.6 in Payload; the embedded editor uses its own React 19.3.1 bundle. Requires Node 22.12 or later. The editor mounts directly into the host page using an independent React root, with scoped styles and per-field state. There is no editor iframe or nested canvas scrollbar; the canvas grows with its content. The core's full-window control remains available in Widget mode. The editor assets are self-hosted. The Page Composer plugin API key is verified against the Page Composer licensing service. Payload CMS itself is free to use.
+Version 0.2.2. Tested with Payload 3.91.0, Next 16.3.3, MongoDB and React 19.2.6 in Payload; the embedded editor uses its own React 19.3.1 bundle. Requires Node 22.12 or later. The editor mounts directly into the host page using an independent React root, with scoped styles and per-field state. There is no editor iframe or nested canvas scrollbar; the canvas grows with its content. The core's full-window control remains available in Widget mode. The editor assets are self-hosted. The Page Composer plugin API key is verified against the Page Composer licensing service. Payload CMS itself is free to use.
 
 ## Install
 
 Install the release tarball in a Payload application:
 
 ```sh
-npm install ./page-composer-payload-0.2.1.tgz
+npm install ./page-composer-payload-0.2.2.tgz
 ```
 
 You can also install from [GitHub](https://github.com/sgorev/page-composer-payloadcms):
@@ -56,7 +56,22 @@ export default buildConfig({
 })
 ```
 
-`pageComposerField()` returns a native Payload **JSON field with a custom admin Field component**. It accepts JSON-field settings such as `required`, `localized`, `access`, `hooks`, and `admin.condition`/`admin.readOnly`. The field can be placed in any collection, global, group, tab, array, or block. Use different names to place several editors in one document. `mode` defaults to `widget`; `height` defaults to 640 px.
+`pageComposerField()` returns a native Payload **JSON field with a custom admin Field component**. It accepts JSON-field settings such as `required`, `localized`, `access`, `hooks`, and `admin.condition`/`admin.readOnly`. The field can be placed in any collection, global, group, tab, array, or block. Use different names to place several editors in one document. Admin fields always use Widget mode; `height` defaults to 640 px. Visual editing is available on the frontend through `PageComposerLiveEditor`. The legacy field `mode` option is deprecated and ignored.
+
+To show an **Edit live** button beside an admin field, configure the frontend route:
+
+```ts
+pageComposerField({
+  name: 'content',
+  liveEditURL: '/pages/{slug}?edit=1',
+})
+```
+
+The button opens a new tab. It is unavailable for unsaved documents, pending form changes, read-only fields and locked documents. Save changes first; the frontend opens the saved document, not the current admin form. The normal Widget editor remains in the admin; there is no admin mode switch.
+
+URL placeholders use saved document values (including nested paths such as `{routing.slug}`) and are URL-encoded. `{id}`, `{collection}`, `{global}`, `{locale}` and `{fieldPath}` are also available. Use `{locale}` only when localization is enabled. Absolute HTTP(S) URLs are supported for separate frontends; authentication there must be configured by the host application. Without `liveEditURL`, no button is added. This option also works with the plugin's `collections` and `globals` field settings.
+
+The URL must point to an existing authorized frontend editor route, as shown under **Public rendering and frontend Live editing** below. The plugin does not infer routes from Payload's Live Preview configuration: previewing and editing are separate actions. Frontend authorization and Payload's save permissions still apply.
 
 You can alternatively append fields through plugin options:
 

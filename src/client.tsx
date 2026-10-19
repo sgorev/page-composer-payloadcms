@@ -1,10 +1,11 @@
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react'
-import { FieldDescription, FieldError, FieldLabel, useConfig, useField, useFormFields, withCondition } from '@payloadcms/ui'
+import { FieldDescription, FieldError, FieldLabel, useConfig, useDocumentInfo, useField, useFormFields, useFormModified, useLocale, withCondition } from '@payloadcms/ui'
 import type { JSONFieldClientProps, TextFieldClientProps } from 'payload'
 import { validateContent, type ComposerContent } from './content.js'
 import { mergePresetValues, presetValues, type PresetNode, type ComponentDefinition } from './presets.js'
+import { resolveLiveEditURL } from './live-edit-url.js'
 
 type CanvasProps = {
   value: ComposerContent | null | undefined
@@ -51,9 +52,9 @@ function loadResource(url: string, stylesheet = false): Promise<void> {
 }
 async function loadRuntime(base: string) {
   const runtime = window as RuntimeWindow
-  await Promise.all(['editor.css', 'adapter.css', 'content.css'].map(file => loadResource(`${base}/assets/${file}?v=0.2.1`, true)))
-  if (!runtime.pce?.payloadLicenseRequired) await loadResource(`${base}/assets/pceditor_payloadcms.js?v=0.2.1`)
-  if (!runtime.PageComposerPayload) await loadResource(`${base}/assets/adapter.js?v=0.2.1`)
+  await Promise.all(['editor.css', 'adapter.css', 'content.css'].map(file => loadResource(`${base}/assets/${file}?v=0.2.2`, true)))
+  if (!runtime.pce?.payloadLicenseRequired) await loadResource(`${base}/assets/pceditor_payloadcms.js?v=0.2.2`)
+  if (!runtime.PageComposerPayload) await loadResource(`${base}/assets/adapter.js?v=0.2.2`)
   return runtime.PageComposerPayload!
 }
 
@@ -131,19 +132,46 @@ export function PageComposerCanvas({ value, onChange, apiURL = '/api', mode = 'w
   </div>
 }
 
-function ComposerField(props: JSONFieldClientProps & { mode?: 'widget' | 'live'; height?: number }) {
-  const { field, path: pathFromProps, readOnly, mode, height } = props
+function ComposerField(props: JSONFieldClientProps & { height?: number; liveEditURL?: string }) {
+  const { field, path: pathFromProps, readOnly, height, liveEditURL } = props
   const { config } = useConfig()
+  const document = useDocumentInfo()
+  const modified = useFormModified()
+  const locale = useLocale()
   const { value, setValue, path, disabled, formProcessing, showError } = useField<ComposerContent>({
     potentiallyStalePath: pathFromProps,
     validate: (value, options) => props.validate
       ? props.validate(value, { ...options, name: field.name, type: 'json', required: field.required })
       : validateContent(value, field.required),
   })
+  const locked = Boolean(readOnly || disabled || formProcessing || document.documentIsLocked || document.hasSavePermission === false)
+  const saved = Boolean(document.globalSlug || document.id != null)
+  const liveURL = resolveLiveEditURL(liveEditURL, {
+    ...(document.data || document.initialData || {}),
+    id: document.id, collection: document.collectionSlug, global: document.globalSlug,
+    locale: locale?.code, fieldPath: path,
+  })
+  const liveHint = !saved ? 'Save this document before opening the frontend editor.'
+    : locked ? 'Frontend editing is unavailable while this field is read-only or saving.'
+    : modified ? 'Save your changes before opening the frontend editor.'
+    : !liveURL ? 'Save the fields used by the frontend editing URL before opening it.'
+    : 'Opens the frontend editor in a new tab using the saved content.'
+  const canOpenLive = saved && !locked && !modified && Boolean(liveURL)
+  const actionStyle: React.CSSProperties = {
+    display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 14px', borderRadius: 4,
+    border: '1px solid var(--theme-elevation-300)', background: 'var(--theme-elevation-50)',
+    color: 'var(--theme-text)', textDecoration: 'none', font: 'inherit', fontWeight: 600,
+  }
   return <div className={`field-type page-composer-field${showError ? ' error' : ''}`} style={{ marginBottom: 24 }}>
     <FieldLabel htmlFor={path} label={field.label} required={field.required} localized={field.localized} />
     <FieldError path={path} />
-    <PageComposerCanvas value={value} onChange={setValue} apiURL={config.routes.api} mode={mode} height={height} readOnly={Boolean(readOnly || disabled || formProcessing)} />
+    {liveEditURL && <div className="page-composer-field-actions" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12, margin: '8px 0 16px' }}>
+      {canOpenLive
+        ? <a href={liveURL} target="_blank" rel="noopener noreferrer" aria-describedby={`${path}-live-hint`} style={actionStyle}>Edit live <span aria-hidden="true">↗</span></a>
+        : <button type="button" disabled aria-describedby={`${path}-live-hint`} style={{ ...actionStyle, opacity: 0.55, cursor: 'not-allowed' }}>Edit live <span aria-hidden="true">↗</span></button>}
+      <small id={`${path}-live-hint`}>{liveHint}</small>
+    </div>}
+    <PageComposerCanvas value={value} onChange={setValue} apiURL={config.routes.api} mode="widget" height={height} readOnly={locked} />
     <FieldDescription path={path} description={field.admin?.description} />
   </div>
 }

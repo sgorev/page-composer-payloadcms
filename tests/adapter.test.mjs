@@ -109,3 +109,40 @@ test('preset settings notify once, retain the root on echoes, enforce locks and 
   mounts[1].config.onChange({ title: 'Disposed' })
   assert.equal(changes.length, 1)
 })
+
+test('cached live markup gets independent styles, labels and radio groups per DOM instance', () => {
+  const { runtime, root, mounts } = fixture(source)
+  runtime.mount(root(), {}, { value: [], mode: 'live', onChange() {}, onError: assert.fail })
+  const render = mounts[0].config.events.liveRender
+  function markup() {
+    const prefix = 'pc-live-abc'
+    const wrapper = { dataset: { pcLive: prefix }, tagName: 'DIV' }
+    const element = (tagName, attributes = {}, textContent = '') => ({ tagName, attributes, textContent,
+      getAttribute(key) { return this.attributes[key] || null },
+      setAttribute(key, value) { this.attributes[key] = value },
+      closest() { return wrapper },
+    })
+    Object.assign(wrapper, element('DIV', { id: prefix }), { dataset: { pcLive: prefix } })
+    const style = element('STYLE', {}, `#${prefix}{color:red}@media(max-width:640px){#${prefix}-tab-0:checked{color:blue}}`)
+    const input = element('INPUT', { id: `${prefix}-tab-0`, name: `${prefix}-tabs` })
+    const label = element('LABEL', { for: `${prefix}-tab-0` })
+    const nested = element('DIV', { id: 'pc-live-child' })
+    nested.closest = () => nested
+    wrapper.querySelectorAll = () => [style, input, label, nested]
+    const node = { querySelectorAll: () => [wrapper] }
+    return { wrapper, style, input, label, nested, node }
+  }
+  const a = markup(), b = markup()
+  render({ node: a.node }); render({ node: b.node })
+  assert.notEqual(a.wrapper.attributes.id, b.wrapper.attributes.id)
+  assert.notEqual(a.input.attributes.name, b.input.attributes.name)
+  for (const copy of [a, b]) {
+    const id = copy.wrapper.attributes.id
+    assert.equal(copy.label.attributes.for, copy.input.attributes.id)
+    assert.ok(copy.style.textContent.includes(`#${id}{color:red}`))
+    assert.ok(copy.style.textContent.includes(`#${id}-tab-0:checked`))
+    assert.equal(copy.nested.attributes.id, 'pc-live-child')
+    render({ node: copy.node })
+    assert.equal(copy.wrapper.attributes.id, id, 'repeated notifications do not rewrite an existing instance')
+  }
+})

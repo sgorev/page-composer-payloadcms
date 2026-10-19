@@ -4,8 +4,11 @@ export { validateContent } from './content.js';
 export type { ComposerContent, ComposerNode } from './content.js';
 export type { Renderers, ComponentRenderer } from './render.js';
 export type PageComposerFieldOptions = Omit<JSONField, 'type'> & {
+    /** @deprecated Admin fields always use Widget mode. Use PageComposerLiveEditor on the frontend. */
     mode?: 'widget' | 'live';
     height?: number;
+    /** Frontend editing URL, e.g. /pages/{slug}?edit=1. Placeholders read saved document fields. */
+    liveEditURL?: string;
 };
 /** Add to any collection, global, group, tab, array or block's fields. */
 export declare function pageComposerField(options: PageComposerFieldOptions): JSONField;

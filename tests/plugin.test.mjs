@@ -62,3 +62,22 @@ test('presets register settings fields and component choices from the merged cat
   assert.ok(tag.clientProps.options.some(o => o.value === 'Custom' && o.label === 'My component'))
   assert.match(fields.find(f => f.name === 'data').admin.components.Field, /#PageComposerPresetField$/)
 })
+
+
+test('live render styles and section controls are isolated when sibling indices repeat', () => {
+  const node = color => ({ name: 'Tabs', index: '0', fields: [{ name: 'css_props', value: { desktop: { css: { color } }, mobile: { css: { padding: '8px' } } } }], children: [{ name: 'Col' }] })
+  const first = renderLiveComponent(node('red')).html
+  const second = renderLiveComponent(node('blue')).html
+  const repeated = renderLiveComponent(node('red')).html
+  const id = html => html.match(/data-pc-live="([^"]+)"/)[1]
+  assert.equal(new Set([first, second, repeated].map(id)).size, 3)
+  for (const html of [first, second, repeated]) {
+    const prefix = id(html)
+    assert.ok(html.includes(`#${prefix}{color:`))
+    assert.ok(html.includes(`id="${prefix}-tab-0"`))
+    assert.ok(html.includes(`for="${prefix}-tab-0"`))
+    assert.ok(html.includes(`name="${prefix}-tabs"`))
+    assert.ok(html.includes(`@media(max-width:640px){#${prefix}{padding:8px}}`))
+  }
+  assert.ok(!second.includes(id(first)))
+})

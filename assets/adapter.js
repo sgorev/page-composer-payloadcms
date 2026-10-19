@@ -112,6 +112,29 @@
   // "Save" in the core editor saves a reusable template, not the CMS document.
   window.pce.langs.en.saveButton = () => 'Save template'
 
+  // Cached HTML may be mounted more than once. Give each actual DOM instance
+  // its own namespace, including section controls and their CSS references.
+  let liveSequence = 0
+  function isolateLiveMarkup({ node }) {
+    if (!node) return
+    for (const wrapper of node.querySelectorAll('[data-pc-live]')) {
+      if (wrapper.dataset.pcLiveMounted) continue
+      const previous = wrapper.dataset.pcLive
+      if (!/^pc-live-[a-z0-9-]+$/i.test(previous)) continue
+      const next = `${previous}-instance-${++liveSequence}`
+      const replace = value => value.split(previous).join(next)
+      const owned = [wrapper, ...wrapper.querySelectorAll('*')].filter(element => element.closest('[data-pc-live]') === wrapper)
+      for (const element of owned) {
+        for (const attribute of ['id', 'for', 'name', 'aria-controls', 'aria-labelledby', 'aria-describedby', 'href']) {
+          const value = element.getAttribute(attribute)
+          if (value && value.includes(previous)) element.setAttribute(attribute, replace(value))
+        }
+        if (element.tagName === 'STYLE') element.textContent = replace(element.textContent)
+      }
+      wrapper.dataset.pcLiveMounted = 'true'
+    }
+  }
+
   let sequence = 0
   window.PageComposerPayload = {
     mountSettings(root, settings, options) {
@@ -179,7 +202,7 @@
         current = JSON.stringify(value)
         mode = nextMode
         root.setAttribute('data-content', current)
-        handle = window.pcEditor(root, { mode, licenseToken: settings.licenseToken, components: settings.catalog, requests: { driver: 'payload-direct', config: { driver, renderCacheKey } }, lang: 'en' })
+        handle = window.pcEditor(root, { mode, events: { liveRender: isolateLiveMarkup }, licenseToken: settings.licenseToken, components: settings.catalog, requests: { driver: 'payload-direct', config: { driver, renderCacheKey } }, lang: 'en' })
         const finishMount = decision => {
           if (disposed || generation !== revision) return
           if (decision && !decision.ok) failure(new Error(decision.message))

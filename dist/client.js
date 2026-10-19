@@ -1,9 +1,10 @@
 'use client';
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 import { useEffect, useRef, useState } from 'react';
-import { FieldDescription, FieldError, FieldLabel, useConfig, useField, useFormFields, withCondition } from '@payloadcms/ui';
+import { FieldDescription, FieldError, FieldLabel, useConfig, useDocumentInfo, useField, useFormFields, useFormModified, useLocale, withCondition } from '@payloadcms/ui';
 import { validateContent } from './content.js';
 import { mergePresetValues, presetValues } from './presets.js';
+import { resolveLiveEditURL } from './live-edit-url.js';
 // Shared scripts/styles, independent editor roots. Keep the promises between
 // route changes and concurrent field mounts; a failed load can be retried.
 const resources = new Map();
@@ -37,11 +38,11 @@ function loadResource(url, stylesheet = false) {
 }
 async function loadRuntime(base) {
     const runtime = window;
-    await Promise.all(['editor.css', 'adapter.css', 'content.css'].map(file => loadResource(`${base}/assets/${file}?v=0.2.1`, true)));
+    await Promise.all(['editor.css', 'adapter.css', 'content.css'].map(file => loadResource(`${base}/assets/${file}?v=0.2.2`, true)));
     if (!runtime.pce?.payloadLicenseRequired)
-        await loadResource(`${base}/assets/pceditor_payloadcms.js?v=0.2.1`);
+        await loadResource(`${base}/assets/pceditor_payloadcms.js?v=0.2.2`);
     if (!runtime.PageComposerPayload)
-        await loadResource(`${base}/assets/adapter.js?v=0.2.1`);
+        await loadResource(`${base}/assets/adapter.js?v=0.2.2`);
     return runtime.PageComposerPayload;
 }
 /** Dashboard notice; individual fields also show verification errors before mounting. */
@@ -130,15 +131,38 @@ export function PageComposerCanvas({ value, onChange, apiURL = '/api', mode = 'w
     return _jsxs("div", { style: { width: '100%' }, children: [_jsx("small", { children: readOnly ? 'Read-only content' : 'Changes are saved with the document. “Save template” stores a reusable layout.' }), error && _jsx("div", { role: "alert", style: { padding: 12, color: '#b42318' }, children: error }), !ready && !error && _jsx("div", { role: "status", children: "Loading Page Composer\u2026" }), _jsx("div", { ref: surface, className: "page-composer-surface", role: "region", "aria-label": title, style: { minHeight: height } })] });
 }
 function ComposerField(props) {
-    const { field, path: pathFromProps, readOnly, mode, height } = props;
+    const { field, path: pathFromProps, readOnly, height, liveEditURL } = props;
     const { config } = useConfig();
+    const document = useDocumentInfo();
+    const modified = useFormModified();
+    const locale = useLocale();
     const { value, setValue, path, disabled, formProcessing, showError } = useField({
         potentiallyStalePath: pathFromProps,
         validate: (value, options) => props.validate
             ? props.validate(value, { ...options, name: field.name, type: 'json', required: field.required })
             : validateContent(value, field.required),
     });
-    return _jsxs("div", { className: `field-type page-composer-field${showError ? ' error' : ''}`, style: { marginBottom: 24 }, children: [_jsx(FieldLabel, { htmlFor: path, label: field.label, required: field.required, localized: field.localized }), _jsx(FieldError, { path: path }), _jsx(PageComposerCanvas, { value: value, onChange: setValue, apiURL: config.routes.api, mode: mode, height: height, readOnly: Boolean(readOnly || disabled || formProcessing) }), _jsx(FieldDescription, { path: path, description: field.admin?.description })] });
+    const locked = Boolean(readOnly || disabled || formProcessing || document.documentIsLocked || document.hasSavePermission === false);
+    const saved = Boolean(document.globalSlug || document.id != null);
+    const liveURL = resolveLiveEditURL(liveEditURL, {
+        ...(document.data || document.initialData || {}),
+        id: document.id, collection: document.collectionSlug, global: document.globalSlug,
+        locale: locale?.code, fieldPath: path,
+    });
+    const liveHint = !saved ? 'Save this document before opening the frontend editor.'
+        : locked ? 'Frontend editing is unavailable while this field is read-only or saving.'
+            : modified ? 'Save your changes before opening the frontend editor.'
+                : !liveURL ? 'Save the fields used by the frontend editing URL before opening it.'
+                    : 'Opens the frontend editor in a new tab using the saved content.';
+    const canOpenLive = saved && !locked && !modified && Boolean(liveURL);
+    const actionStyle = {
+        display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 14px', borderRadius: 4,
+        border: '1px solid var(--theme-elevation-300)', background: 'var(--theme-elevation-50)',
+        color: 'var(--theme-text)', textDecoration: 'none', font: 'inherit', fontWeight: 600,
+    };
+    return _jsxs("div", { className: `field-type page-composer-field${showError ? ' error' : ''}`, style: { marginBottom: 24 }, children: [_jsx(FieldLabel, { htmlFor: path, label: field.label, required: field.required, localized: field.localized }), _jsx(FieldError, { path: path }), liveEditURL && _jsxs("div", { className: "page-composer-field-actions", style: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12, margin: '8px 0 16px' }, children: [canOpenLive
+                        ? _jsxs("a", { href: liveURL, target: "_blank", rel: "noopener noreferrer", "aria-describedby": `${path}-live-hint`, style: actionStyle, children: ["Edit live ", _jsx("span", { "aria-hidden": "true", children: "\u2197" })] })
+                        : _jsxs("button", { type: "button", disabled: true, "aria-describedby": `${path}-live-hint`, style: { ...actionStyle, opacity: 0.55, cursor: 'not-allowed' }, children: ["Edit live ", _jsx("span", { "aria-hidden": "true", children: "\u2197" })] }), _jsx("small", { id: `${path}-live-hint`, children: liveHint })] }), _jsx(PageComposerCanvas, { value: value, onChange: setValue, apiURL: config.routes.api, mode: "widget", height: height, readOnly: locked }), _jsx(FieldDescription, { path: path, description: field.admin?.description })] });
 }
 export const PageComposerField = withCondition(ComposerField);
 function PresetTagField(props) {
