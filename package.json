@@ -1,6 +1,6 @@
 {
   "name": "@page-composer/payload",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Page Composer visual content fields and authenticated frontend editing for Payload CMS 3",
   "type": "module",
   "license": "SEE LICENSE IN LICENSE",

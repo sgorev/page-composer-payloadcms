@@ -51,9 +51,9 @@ function loadResource(url: string, stylesheet = false): Promise<void> {
 }
 async function loadRuntime(base: string) {
   const runtime = window as RuntimeWindow
-  await Promise.all(['editor.css', 'adapter.css', 'content.css'].map(file => loadResource(`${base}/assets/${file}?v=0.2.0`, true)))
-  if (!runtime.pce?.payloadLicenseRequired) await loadResource(`${base}/assets/pceditor_payloadcms.js?v=0.2.0`)
-  if (!runtime.PageComposerPayload) await loadResource(`${base}/assets/adapter.js?v=0.2.0`)
+  await Promise.all(['editor.css', 'adapter.css', 'content.css'].map(file => loadResource(`${base}/assets/${file}?v=0.2.1`, true)))
+  if (!runtime.pce?.payloadLicenseRequired) await loadResource(`${base}/assets/pceditor_payloadcms.js?v=0.2.1`)
+  if (!runtime.PageComposerPayload) await loadResource(`${base}/assets/adapter.js?v=0.2.1`)
   return runtime.PageComposerPayload!
 }
 

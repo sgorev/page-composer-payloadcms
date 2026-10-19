@@ -4,7 +4,8 @@
 .page-composer-surface .pce-editor-cont{border:0}
 .page-composer-surface *, .page-composer-surface *::before, .page-composer-surface *::after{box-sizing:border-box}
 .page-composer-surface :is(button,input,select,textarea){font-family:inherit;letter-spacing:normal}
-.page-composer-surface .pce-modal{z-index:100020;max-width:calc(100vw - 32px);min-width:0}
+/* Keep the editor modal order: settings (999), then save/load overlay (1001). */
+.page-composer-surface .pce-modal{max-width:calc(100vw - 32px);min-width:0}
 .page-composer-surface .pce-modal-settings,.page-composer-surface .modal-modules{width:min(1200px,calc(100vw - 32px))}
 .page-composer-surface .pce-editor-cont--fullwindow{z-index:100010}
 .page-composer-surface .pce-modal-elements__categories{max-width:25vw}

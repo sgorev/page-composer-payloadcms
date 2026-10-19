@@ -37,11 +37,11 @@ function loadResource(url, stylesheet = false) {
 }
 async function loadRuntime(base) {
     const runtime = window;
-    await Promise.all(['editor.css', 'adapter.css', 'content.css'].map(file => loadResource(`${base}/assets/${file}?v=0.2.0`, true)));
+    await Promise.all(['editor.css', 'adapter.css', 'content.css'].map(file => loadResource(`${base}/assets/${file}?v=0.2.1`, true)));
     if (!runtime.pce?.payloadLicenseRequired)
-        await loadResource(`${base}/assets/pceditor_payloadcms.js?v=0.2.0`);
+        await loadResource(`${base}/assets/pceditor_payloadcms.js?v=0.2.1`);
     if (!runtime.PageComposerPayload)
-        await loadResource(`${base}/assets/adapter.js?v=0.2.0`);
+        await loadResource(`${base}/assets/adapter.js?v=0.2.1`);
     return runtime.PageComposerPayload;
 }
 /** Dashboard notice; individual fields also show verification errors before mounting. */

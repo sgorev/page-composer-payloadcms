@@ -78,7 +78,7 @@ test('editor controls prevent default form submission without blocking their cli
 
 test('stylesheet scopes general rules and drag state without altering keyframes or body portals', () => {
   const css = scopeEditorCSS(':root{--pce-test:1}[role="button"],.menu-element{color:red}body.pce-sec-dragging *{cursor:grabbing}@keyframes spin{0%{opacity:0}to{opacity:1}}.swal2-container{z-index:10}')
-  assert.match(css, /\.page-composer-surface\{--pce-test/)
+  assert.match(css, /\.page-composer-surface, \.swal2-popup\.pce-swal\{--pce-test/)
   assert.match(css, /\.page-composer-surface \[role="button"\]/)
   assert.match(css, /body\.pce-sec-dragging \.page-composer-surface \*/)
   assert.match(css, /@keyframes spin\{0%/)

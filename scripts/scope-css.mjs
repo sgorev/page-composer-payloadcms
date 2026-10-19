@@ -6,7 +6,8 @@ export function scopeEditorCSS(css) {
   root.walkRules(rule => {
     if (rule.parent.type === 'atrule' && /keyframes$/i.test(rule.parent.name)) return
     rule.selectors = rule.selectors.map(selector => {
-      if (selector === ':root') return '.page-composer-surface'
+      // SweetAlert portals are outside the canvas and need the same theme tokens.
+      if (selector === ':root') return '.page-composer-surface, .swal2-popup.pce-swal'
       // TinyMCE and SweetAlert place their dialogs under document.body.
       if (selector.startsWith('.tox.')) return selector
       if (selector === '.swal2-container') return '.swal2-container:has(.pce-swal)'
